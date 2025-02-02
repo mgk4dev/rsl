@@ -1,0 +1,93 @@
+
+enum Option (T) {
+    T,
+    None
+}
+
+enum Result (T) {
+    T,
+    Error
+}
+
+struct Foo (A, B) {
+    a: A,
+    b: B
+}
+
+struct Foo {
+    str: String,
+    int: integer,
+    number: real,
+    dict: Map(String, integer),
+    values: Array(String),
+    tuple: (integer, String)
+}
+
+impl Foo {
+    fn to_string(self) -> String {
+        "Foo"
+    }
+
+    fn double_int(self) -> integer {
+        self.int * 2
+    }
+}
+
+trait Debug {
+    fn debug_str(self: Self) -> String;
+}
+
+impl Debug for Foo {
+    fn debug_str(self: Self) -> String {
+        self.to_string()
+    }
+}
+
+
+fn double(param: real) -> real {
+
+    var i : String = "hello";
+
+    for i in 0..10 {
+        println("Hello {} {}", i, param);
+    } 
+
+    if param > 0 {
+
+    }
+
+    match param as integer {
+        0 => 1,
+        1 => 2,
+        _ => 3
+    }
+
+    param * 2
+}
+
+//////////////////////////////////////////////////
+
+trait Stage {
+    type Input;
+    type Output;
+    fn run (self, input : Input) -> Result(Output);
+    fn description(self:Self) -> String;
+}
+
+struct CustomCheck {
+    path: String
+}
+
+impl Stage for CustomCheck {
+    type Input = Document;
+    type Output = Document;
+
+    fn run(self, in_doc : Document) -> Result(Document, Error) {
+        in_doc
+    }
+}
+
+
+
+
+

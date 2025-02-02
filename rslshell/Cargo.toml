@@ -1,0 +1,7 @@
+[package]
+name = "rslshell"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rsl = { path = "../rsl" } # Use the library crate

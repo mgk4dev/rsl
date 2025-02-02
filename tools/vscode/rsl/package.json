@@ -1,0 +1,34 @@
+{
+  "name": "rsl",
+  "displayName": "rsl",
+  "description": "rsl language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rsl",
+        "aliases": [
+          "rsl language",
+          "rsl"
+        ],
+        "extensions": [
+          ".rsl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rsl",
+        "scopeName": "source.rsl",
+        "path": "./syntaxes/rsl.tmLanguage.json"
+      }
+    ]
+  }
+}

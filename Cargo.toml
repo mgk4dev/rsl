@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "rsl",
+    "rslshell"   # Binary crate
+]
+
+resolver = "2"

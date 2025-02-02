@@ -1,0 +1,10 @@
+Load (path: Path) -> Document;
+Save {
+    path: Path,
+}(d: Document) -> ();
+
+Merge (inputs : Array(Document)) -> Document ;
+
+Split (Document) -> Array(Document);
+
+

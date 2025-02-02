@@ -1,0 +1,42 @@
+#dfdd
+
+import std;
+
+fn merge_pdfs (input_paths: Array<Path>, output_path: Path) {
+    var pipeline = Pipeline {
+        LoadIncremental { paths: input_paths },
+        AssembleDocument {},
+        Save { path: ioutput_path }
+    };
+    return pipeline.run(); 
+}
+
+fn split_pdf (input_path: Path, output_folder: Path, base_name: String) {
+    var pipeline = Pipeline {
+        Load { path: input_path },
+        EnumaratePages {},
+        AssembleDocumentFromPage {},
+        Save { path: ioutput_path }
+    };
+    return pipeline.run();
+}
+
+fn decrypt (input_path: Path, output_path: Path , password: String) -> Result(()) {
+    
+    var pipeline = Pipeline {
+        Load { path: input_path },
+        Decrypt { password: password},
+        Save { path: output_path }
+    };
+    return pipeline.run();  
+}
+
+fn optimize (input_path: Path, output_path: Path ) -> Result(()) {
+    
+    var pipeline = Pipeline {
+        Load { path: input_path },
+        Optimize { },
+        Save { path: output_path }
+    };
+    return pipeline.run();  
+}

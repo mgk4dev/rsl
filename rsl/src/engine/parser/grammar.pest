@@ -1,0 +1,271 @@
+WHITESPACE = _{ " " | "\t" | NEWLINE}
+COMMENT    = _{ "#" ~ (!NEWLINE ~ ANY)* ~ NEWLINE? }
+
+keyword = {
+    "true" | "false" |
+    "fn" | "struct" | "enum" | "trait" | "impl" | "let" | 
+    "if" | "elif" | "else" | "for" | "break" | "return" |
+    "import" |
+    "as" | "is" | "self"
+}
+
+
+//-----------------------------------------------------------------------------
+// Literals
+bool_literal = { "true" | "false" }
+
+integer_literal = @{
+    "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)
+}
+
+real_literal = @{
+    "-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*) ~ ("." ~ ASCII_DIGIT*) ~ (^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+)?
+}
+
+escaped_char   = _{ "\\" ~ ANY }
+string_literal = @{ "\"" ~ (escaped_char | (!"\"" ~ ANY))* ~ "\"" }
+
+literal = {
+    real_literal
+  | integer_literal
+  | bool_literal
+  | string_literal
+}
+
+//-----------------------------------------------------------------------------
+// Operators
+
+unary_op = { "not" | "+" | "-"}
+multiplicative_op = { "*" | "/" }
+additive_op = { "+" | "-" }
+logical_op = { "and" | "or"}
+equality_op = { "==" | "!="}
+relational_op = { "<" | "<=" | ">" | ">=" }
+
+//-----------------------------------------------------------------------------
+//
+
+any_identifier = @{ ("_" | ASCII_ALPHA) ~ (ASCII_ALPHANUMERIC | "_")* }
+identifier = @{ !keyword ~ any_identifier | keyword ~ any_identifier }
+
+type_expression_list = { type_expression ~ ( "," ~ type_expression)*}
+
+single_generic_type_instance  = { identifier ~ ("<" ~ type_expression_list  ~">") }
+single_type_expression_item = {
+    single_generic_type_instance | identifier
+}
+
+single_type_expression = {
+    single_type_expression_item ~ ("." ~ single_type_expression_item)*
+}
+
+tuple_type_expression = {
+    "(" ~
+        type_expression ~ ("," ~ type_expression)+ ~
+    ")"
+}
+
+unit_type_expression = {"(" ~ ")"}
+
+type_expression = {
+    unit_type_expression |
+    tuple_type_expression |
+    single_type_expression
+}
+
+type_construction_property_set = {identifier ~ ":" ~ expression }
+type_construction_property_push = { expression }
+type_construction_arg = {
+    type_construction_property_set |  type_construction_property_push
+}
+
+type_construction_args = { ( type_construction_arg ~ ( "," ~ type_construction_arg ) *)? }
+type_construction = { type_expression ~ "{" ~ type_construction_args ~ "}" }
+
+function_call_arguments = { expression ~ ("," ~expression)* }
+function_call = {identifier ~ "(" ~ function_call_arguments? ~")"}
+
+expression_path_item = {
+    function_call |
+    single_generic_type_instance |
+    identifier
+}
+
+expression_path = {expression_path_item ~ ("." ~ expression_path_item)*}
+
+tuple_expression = { "("
+    ~ expression ~ ","
+    ~ expression ~
+    ( "," ~expression )*
+    ~ ")"
+}
+
+primary_expression = {
+    type_construction
+  | expression_path
+  | literal
+  | "(" ~ expression ~ ")"
+  | tuple_expression
+}
+
+unary_expression = {
+    unary_op? ~ primary_expression
+}
+
+multiplicative_expression = {
+    unary_expression ~ (multiplicative_op ~ unary_expression)*
+}
+
+additive_expression = {
+    multiplicative_expression ~ (additive_op ~ multiplicative_expression)*
+}
+
+relational_expression = {
+    additive_expression ~ (relational_op ~ additive_expression)*
+}
+
+equality_expression = {
+    relational_expression ~ (equality_op ~ relational_expression)*
+}
+
+logical_expression = {
+    equality_expression ~ (logical_op ~ equality_expression)*
+}
+// ----------------------
+cast_expression = {
+    logical_expression ~ "as" ~ type_expression
+}
+
+type_test_expression = {
+    logical_expression ~ "is" ~ type_expression
+}
+
+open_range_expression = {
+    logical_expression ~ ".." ~ logical_expression
+}
+
+closed_range_expression = {
+    logical_expression ~ "..=" ~ logical_expression
+}
+
+range_expression = {
+    closed_range_expression | open_range_expression
+}
+
+expression = {
+    range_expression |
+    cast_expression |
+    type_test_expression |
+    logical_expression
+}
+
+//-----------------------------------------------------------------------------
+//
+
+// a: B
+identifier_and_type = { identifier ~ ":" ~ type_expression }
+
+identifier_and_type_list = {
+    identifier_and_type ~ ("," ~ identifier_and_type)*
+}
+// Struct
+structure = {
+    "struct" ~ identifier ~ "{" ~ identifier_and_type_list? ~ "}"
+}
+
+enumeration =  {
+    "enum" ~identifier ~ "{" ~ 
+        type_expression  ~ ( "," ~ type_expression)* ~ 
+    "}"
+}
+
+
+// Function
+
+function_return_type = { "->" ~ type_expression }
+function_signature = {
+    "(" ~ identifier_and_type_list? ~ ")" ~ function_return_type?
+}
+
+function = { "fn" ~ identifier ~ function_signature ~ scope }
+
+function_declaration = { "fn" ~ identifier ~ function_signature }
+
+member_function_declaration = {
+    "fn" ~ identifier ~
+    "(" ~ "self" ~  ("," ~ identifier_and_type)*  ~ ")" ~
+    function_return_type?
+}
+
+trait_function_declaration = {
+    member_function_declaration | function_declaration
+}
+
+trait_ = { "trait" ~ identifier ~ "{" ~ (trait_function_declaration ~ ";")* ~ "}" }
+
+// let toto : T = val
+variable_declaration = {
+    "let" ~ identifier ~ ":" ~ type_expression ~ "=" ~ expression
+}
+
+// toto = val
+assignment = { expression ~ "=" ~ expression }
+
+// if cond { ... }
+// elif cond { ... }
+// else { ... }
+if_main_scope = { "if" ~ expression ~ scope }
+elif_scope = { "elif" ~ expression ~ scope }
+else_scope = { "else" ~ scope } 
+if_statement = { if_main_scope ~ (elif_scope)* ~ else_scope?}
+
+// for i in exp {}
+for_statement = { "for" ~ identifier ~ "in" ~ expression ~ scope }
+
+break_statement = {"break" ~ expression? }
+return_statement = {"return" ~ expression? }
+
+//
+scope = { "{" ~ function_statement* ~ expression? ~ "}" }
+
+//-----------------------------------------------------------------------------
+//
+
+import_statement = {"import" ~ identifier ~ ("as" ~ identifier)?}
+
+function_statement = {
+    variable_declaration ~ ";"
+  | assignment ~ ";"
+  | if_statement
+  | for_statement
+  | break_statement ~ ";"
+  | return_statement ~ ";"
+  | expression ~ ";"
+}
+
+
+module_statement = {
+    import_statement ~ ";"
+  | function
+  | structure
+  | enumeration
+  | trait_
+  | assignment ~ ";"
+  | expression ~ ";"
+  | variable_declaration ~ ";"
+  | if_statement
+  | for_statement
+  | module_definition
+}
+
+module_definition = {
+    "module" ~ identifier ~ "{" ~
+        module_statement* ~ expression? ~
+    "}"
+}
+
+program = { SOI ~ module_statement* ~ expression? ~ EOI }
+
+
+//-----------------------------------------------------------------------------
+//

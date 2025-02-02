@@ -1,0 +1,120 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "RSL Programming Language",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#double-quote-string"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#builtin-types"
+		},
+		{
+			"include": "#builtin-objects"
+		},
+		{
+			"include": "#builtin-basic-types"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#litterals"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.rsl",
+					"begin": "#",
+					"end": "$\\n?"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword",
+					"match": "\\b(import|module|fn|struct|enum|closure|trait|impl|var)\\b"
+				},
+				{
+					"name": "keyword.control",
+					"match": "\\b(return|if|elif|else|try|for|in|break)\\b"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator",
+					"match": "\\b(and|or|not|is|as)\\b"
+				}
+			]
+		},
+		"builtin-types": {
+			"patterns": [
+				{
+					"name": "entity.name.type",
+					"match": "\\b(Result|Option|Error|Array|Map|Path|String)\\b"
+				},
+				{
+					"name": "entity.name.type",
+					"match": "\\b(Pipeline|Load|Save|Decrypt|Encrypt|Optimize)\\b"
+				}
+			]
+		},
+		"builtin-objects": {
+			"patterns": [
+				{
+					"name": "entity.name.function",
+					"match": "\\b(println|format)\\b"
+				}
+			]
+		},
+		"builtin-basic-types": {
+			"patterns": [
+				{
+					"name": "storage.type",
+					"match": "\\b(int|real|bool)\\b"
+				}
+			]
+		},
+		"double-quote-string": {
+			"name": "string.quoted.double",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape",
+					"match": "\\\\."
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric.float",
+					"match": "\\b[0-9][0-9_]*(\\.[0-9][0-9_]*)?([eE][+-]?[0-9_]+)?\\b"
+				}
+			]
+		},
+		"litterals": {
+			"patterns": [
+				{
+					"name": "constant.numeric.float",
+					"match": "\\b(true|false)\\b"
+				}
+			]
+		}
+	},
+	"scopeName": "source.rsl"
+}
